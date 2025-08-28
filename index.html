@@ -1,0 +1,20 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Redirecting...</title>
+</head>
+<body>
+    <p>Redirecting to Nosistent app...</p>
+    <script>
+        // Extract OAuth parameters from URL
+        const urlParams = new URLSearchParams(window.location.search);
+        const code = urlParams.get('code');
+        const state = urlParams.get('state');
+        
+        // Redirect to your iOS app with the parameters
+        if (code && state) {
+            window.location.href = `nosistent://oauth/callback?code=${code}&state=${state}`;
+        }
+    </script>
+</body>
+</html>
