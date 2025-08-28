@@ -1,20 +1,74 @@
 <!DOCTYPE html>
 <html>
 <head>
-    <title>Redirecting...</title>
+    <meta charset="utf-8">
+    <title>Redirecting to Nosistent...</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <style>
+        body { 
+            font-family: -apple-system, BlinkMacSystemFont, sans-serif; 
+            text-align: center; 
+            padding: 50px; 
+        }
+        .spinner { 
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #3498db;
+            border-radius: 50%;
+            width: 40px;
+            height: 40px;
+            animation: spin 2s linear infinite;
+            margin: 20px auto;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+    </style>
 </head>
 <body>
-    <p>Redirecting to Nosistent app...</p>
+    <h2>Opening Nosistent App...</h2>
+    <div class="spinner"></div>
+    <p>If the app doesn't open automatically, <a href="#" id="manual-link">click here</a></p>
+    
     <script>
-        // Extract OAuth parameters from URL
-        const urlParams = new URLSearchParams(window.location.search);
-        const code = urlParams.get('code');
-        const state = urlParams.get('state');
-        
-        // Redirect to your iOS app with the parameters
-        if (code && state) {
-            window.location.href = `nosistent://oauth/callback?code=${code}&state=${state}`;
+        function getURLParams() {
+            const params = new URLSearchParams(window.location.search);
+            return {
+                code: params.get('code'),
+                state: params.get('state'),
+                error: params.get('error')
+            };
         }
+        
+        function redirectToApp() {
+            const { code, state, error } = getURLParams();
+            
+            if (error) {
+                document.body.innerHTML = '<h2>Authentication Error</h2><p>' + error + '</p>';
+                return;
+            }
+            
+            if (code && state) {
+                const appURL = `nosistent://oauth/callback?code=${encodeURIComponent(code)}&state=${encodeURIComponent(state)}`;
+                
+                // Update manual link
+                document.getElementById('manual-link').href = appURL;
+                
+                // Try to redirect
+                window.location.href = appURL;
+                
+                // Fallback for browsers that don't handle custom schemes
+                setTimeout(() => {
+                    document.body.innerHTML += '<p><strong>Having trouble?</strong> Make sure the Nosistent app is installed.</p>';
+                }, 3000);
+                
+            } else {
+                document.body.innerHTML = '<h2>Invalid OAuth Response</h2><p>Missing authorization code or state parameter.</p>';
+            }
+        }
+        
+        // Redirect immediately when page loads
+        redirectToApp();
     </script>
 </body>
 </html>
